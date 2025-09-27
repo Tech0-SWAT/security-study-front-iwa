@@ -1,13 +1,18 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - webapp-security2
+name: Build and deploy Node.js app to Azure Web App
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      app_name:
+        description: 'Azure Web App name to deploy to'
+        required: true
+      slot_name:
+        description: 'Deployment slot name'
+        required: false
+        default: 'Production'
 
 jobs:
   build:
@@ -62,9 +67,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D13F33074232411288BA480CB0D243C3 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_B44AF6B69A4E478DA9F23E44245FB0F9 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_924F0E7DC56E424B8E39EF869CF22E2F }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
@@ -73,7 +78,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'webapp-security2'
-          slot-name: 'Production'
+          app-name: ${{ github.event.inputs.app_name }}
+          slot-name: ${{ github.event.inputs.slot_name }}
           package: ./deploy
           
